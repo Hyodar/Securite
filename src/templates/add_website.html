@@ -1,0 +1,23 @@
+{% extends "manager.html" %}
+{% block title %}Regsistered websites{% endblock %}
+{% block content %}
+<div class="container right w3-card-4">
+
+    <form class="flex_div column center" method="post" action="/added/">
+        <h2>Registre um novo site para monitoramento</h2>
+        <input type="hidden" name="type" value="add" />
+        <label>Nome:</label>
+        <input type="text" name="name" required/>
+        <label>URL</label>
+        <input type="url" name="url" required/>
+        <label>Frequência de testes:</label>
+        <select name="update_period">
+            <option value="5">5 dias</option>
+            <option value="15">15 dias</option>
+            <option value="30">30 dias</option>
+        </select>
+        <br>
+        <button type="submit">Enviar</button>
+    </form>
+</div>
+{% endblock %}

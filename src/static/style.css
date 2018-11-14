@@ -1,0 +1,730 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway'); /*Fonte default do Skeleton*/
+
+/* Base Styles
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* NOTE
+html is set to 62.5% so that all the REM measurements throughout Skeleton
+are based on 10px sizing. So basically 1.5rem = 15px :) */
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "Open Sans", "HelveticaNeue", Helvetica, Arial, sans-serif;
+  color: rgb(50, 50, 50); }
+
+
+/* Typography
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: 300; }
+h1 { font-size: 4.5rem; line-height: 1.2;  letter-spacing: -.1rem; margin-bottom: 2rem; }
+h2 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; margin-bottom: 1.8rem; margin-top: 1.8rem;}
+h3 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; margin-bottom: 1.5rem; margin-top: 1.5rem;}
+h4 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-bottom: 1.2rem; margin-top: 1.2rem;}
+h5 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
+h6 { font-size: 2.0rem; line-height: 1.6;  letter-spacing: 0; margin-bottom: 0.75rem; margin-top: 0.75rem;}
+
+p {
+  margin-top: 0; }
+
+
+/* Blockquotes
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+blockquote {
+  border-left: 4px lightgrey solid;
+  padding-left: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-left: 0rem;
+}
+
+
+/* Links
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+a {
+  color: #1EAEDB;
+  cursor: pointer;
+  text-decoration: underline;}
+a:hover {
+  color: #0FA0CE; }
+
+
+/* Buttons
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+
+
+/* Forms
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+input,
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit; /*https://stackoverflow.com/questions/6080413/why-doesnt-input-inherit-the-font-from-body*/}
+/* Removes awkward default styles on some inputs for iOS */
+input,
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: 0px; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+
+
+/* Lists
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+ul {
+  list-style: circle inside; }
+ol {
+  list-style: decimal inside; }
+ol, ul {
+  padding-left: 0;
+  margin-top: 0; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li {
+  margin-bottom: 1rem; }
+
+
+/* Tables
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+
+
+/* Spacing
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+button,
+.button {
+  margin-bottom: 0rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 0rem; }
+pre,
+dl,
+figure,
+table,
+form {
+  margin-bottom: 0rem; }
+p,
+ul,
+ol {
+  margin-bottom: 0.75rem; }
+
+/* Utilities
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+
+
+/* Misc
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+
+
+/* Clearing
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+/* Self Clearing Goodness */
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+
+/* Media Queries
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/*
+Note: The best way to structure the use of media queries is to create the queries
+near the relevant code. For example, if you wanted to change the styles for buttons
+on small devices, paste the mobile query code up in the buttons section and style it
+there.
+*/
+
+
+/* Larger than mobile */
+@media (min-width: 400px) {}
+
+/* Larger than phablet (also point when grid becomes active) */
+@media (min-width: 550px) {}
+
+/* Larger than tablet */
+@media (min-width: 750px) {}
+
+/* Larger than desktop */
+@media (min-width: 1000px) {}
+
+/* Larger than Desktop HD */
+@media (min-width: 1200px) {}
+
+
+
+/* --------------------------------------------------------------------------CUSTOM CSS--------------------------------------------------------------*/
+
+#header_img{
+    background-image: url('https://i.imgur.com/WXEV5Oo.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#upload_div:hover{
+    background-color: #b6c0dc30;
+}
+
+h4{
+    display: inline-block;
+    height: 38px;
+    width: 100%;
+    padding: 0 30px;
+    color: #555;
+    text-align: center;
+    font-family: Helvetica;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: .1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 4px;
+    border-bottom: 1px solid #bbb;
+    box-sizing: border-box;
+}
+
+h1{
+    display: inline-block;
+    height: 100px;
+    width: 100%;
+    padding: 0 30px;
+    color: #555;
+    margin-top: 100px;
+    text-align: center;
+    font-size: 50px;
+    font-weight: 300;
+    line-height: 38px;
+    letter-spacing: .2rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 4px;
+    border-bottom: 1px solid #bbb;
+    box-sizing: border-box;
+}
+
+.gtitle, .legendtext{
+    display: inline-block;
+    padding: 0 30px;
+    color: #555;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: .1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 4px;
+    border-bottom: 1px solid #bbb;
+    box-sizing: border-box;
+}
+
+#graph{
+    color: #555;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: .1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.big{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 300;
+    margin-left: 30px;
+    margin-right: 30px;
+    height: 60px;
+    max-width: 300px;
+}
+
+.orange_button{
+    background-color: #fa9d19;
+    color: #ffffff;
+    margin: 10px;
+}
+
+.blue_button{
+    background-color: #1975fa;
+    color: #ffffff;
+    margin: 10px;
+}
+
+div > input{
+    width: 250px; 
+}
+
+.base_page{
+    background: transparent url("miohiding.gif") no-repeat left top;
+    background-size: contain;
+}
+
+.logo{
+    border: 2px solid #bbb;
+    border-top: none;
+    border-radius: 4px;
+    padding: 25px;
+    padding-top: 0px;
+}
+
+.radio-label{
+  margin: 20px;
+  height: 100px;
+  width: 30vw;
+  padding: 0px;
+  color: #555;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.radio-label > input[type="radio"]{
+    display: block;
+    float: left;
+    border: none;
+    border-right: 1px solid #d6d6d6;
+    width: 5px;
+    height: 110%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.radio-label > input[type="radio"]:checked{
+    background-color: #1975fa;
+}
+
+.cover_div{
+    min-width: 100vw;
+    min-height: 100vh;
+    display: block;
+    position: fixed;
+    background-color: white;
+    z-index: 9999;
+}
+
+.hidden{
+    display: none;
+}
+
+@-webkit-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@-moz-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+.fade-in {
+  opacity:0;  /* make things invisible upon start */
+  -webkit-animation:fadeIn ease-in 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
+  -moz-animation:fadeIn ease-in 1;
+  animation:fadeIn ease-in 1;
+
+  -webkit-animation-fill-mode:forwards;  /* this makes sure that after animation is done we remain at the last keyframe value (opacity: 1)*/
+  -moz-animation-fill-mode:forwards;
+  animation-fill-mode:forwards;
+
+  -webkit-animation-duration:1s;
+  -moz-animation-duration:1s;
+  animation-duration:1s;
+}
+
+.fade-in.one {
+  -webkit-animation-delay: 0.7s;
+  -moz-animation-delay: 0.7s;
+  animation-delay: 0.7s;
+}
+
+.fade-in.two {
+  -webkit-animation-delay: 1.2s;
+  -moz-animation-delay:1.2s;
+  animation-delay: 1.2s;
+}
+
+@-webkit-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+@-moz-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+@keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+
+.fade-out {
+  opacity:1;
+  -webkit-animation:fadeIn ease-in-out 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
+  -moz-animation:fadeIn ease-in-out 1;
+  animation:fadeIn ease-in-out 1;
+
+  -webkit-animation-fill-mode:forwards;  /* this makes sure that after animation is done we remain at the last keyframe value (opacity: 1)*/
+  -moz-animation-fill-mode:forwards;
+  animation-fill-mode:forwards;
+
+  -webkit-animation-duration:1s;
+  -moz-animation-duration:1s;
+  animation-duration:1s;
+}
+
+.fade-out.one {
+  -webkit-animation-delay: 0.7s;
+  -moz-animation-delay: 0.7s;
+  animation-delay: 0.7s;
+}
+
+.flex_div{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex_div.row{
+    flex-direction: row;
+}
+
+.flex_div.column{
+    flex-direction: column;
+}
+
+.flex_div.center{
+    align-items: center;
+    align-content: center;
+    align-self: center;
+}
+
+#name_new_datatable_div{
+    border: 1px solid #bbb;
+    border-radius: 2px;
+}
+
+
+/* Create two columns/boxes that floats next to each other */
+.nav {
+    float: left;
+    width: 30%;
+    background: #ccc;
+    padding: 20px;
+}
+
+/* Style the list inside the menu */
+.nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.article {
+    float: left;
+    padding: 20px;
+    width: 70%;
+    background-color: #f1f1f1;
+}
+
+/* Clear floats after the columns */
+
+/* Style the footer */
+.footer {
+    background-color: #777;
+    padding: 10px;
+    text-align: center;
+    color: white;
+}
+
+@media (max-width: 1220px) {
+    .header, .container, #add_website, .sidebar {
+        width: 100% !important;
+        height: auto;
+    }
+    .container{
+        padding-left: 20px !important;
+    }
+    .sidebar{
+        display: none;
+        hidden: hidden;
+        width: 0px;
+        margin-bottom: 50px;
+    }
+    .btn_menu{
+        display: block !important;
+    }
+    .btn_bar_item{
+        margin-left: 10px !important;
+        min-width: 90px;
+        max-width: 120px;
+        width: 28vw !important;
+    }
+}
+
+/* W3 CSS */
+
+.w3-bar{width:100%;overflow:hidden;cursor:pointer;}.w3-center .w3-bar{display:inline-block;width:auto}
+.w3-bar .w3-bar-item{padding:8px 16px;float:left;width:auto;border:none;display:block;outline:0}
+.w3-bar .w3-dropdown-hover,.w3-bar .w3-dropdown-click{position:static;float:left}
+.w3-bar .w3-button{white-space:normal}
+.w3-bar-block .w3-bar-item{width:100%;display:block;padding:8px 16px;text-align:left;border:none;white-space:normal;float:none;outline:0}
+.w3-bar-block.w3-center .w3-bar-item{text-align:center}.w3-block{display:block;width:100%}
+
+.w3-ul{list-style-type:none;padding:0;margin:0}.w3-ul li{padding:8px 16px;border-bottom:1px solid #ddd}.w3-ul li:last-child{border-bottom:none}
+.w3-card-4,.w3-hover-shadow:hover{box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);overflow-x:hidden;}
+
+#add_website {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+.btn_add_website{
+    background-image: url('add_website.svg')
+}
+
+#loading_gif{
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -100px 0px 0px -100px;
+}
+
+.btn_bar_item{
+    min-width:120px;
+    width: auto;
+    height:90px;
+    white-space:normal;
+    padding:none;
+    cursor:pointer;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    margin-left: 40px;
+}
+
+.icon_img_div{
+    width:100%;
+    height:52px;
+    margin-top:5px;
+    background-position-y:center;
+    background-size: cover;
+}
+
+.icon_text{
+    width:auto;
+    min-width: 120px;
+    height:15px;
+}
+
+.icon_text > h4{
+    font-size:10px;
+    padding:0px;
+    margin:0px;
+    border:none;
+}
+
+.header{
+    padding: 15px;
+    margin-bottom: 50px;
+    border-bottom: 1px solid #bbb;
+}
+
+.sidebar{
+    height:auto;
+    width:17%;
+    min-width:250px;
+    background-color:#fff;
+    z-index:1;
+    overflow:auto;
+    padding:8px;
+    border-right: 1px solid #bbb;
+}
+
+.right{
+    right: 0px;
+}
+
+.container{
+    padding-left:50px;
+    padding-right:30px;
+    width:70%;
+    margin: 0 auto;
+}
+
+.btn_menu{
+    position: absolute;
+    display: none;
+    width: 50px;
+    height: 50px;
+    background-image:url('icons/menu_button.png');
+    background-size:cover;
+    background-position:center;
+    background-color: #ffffff;
+    z-index: 9999;
+}
+
+.arrow{
+    display: block;
+    margin-right: 20px;
+    width: 40px;
+    height: 40px;
+    background-image: url('icons/arrow.png');
+    background-size:cover;
+    background-position:center;
+    float:right;
+    cursor:pointer;
+
+}

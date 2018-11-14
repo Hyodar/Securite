@@ -1,0 +1,28 @@
+{% extends "manager.html" %}
+{% block title %}Regsistered websites{% endblock %}
+{% block content %}
+
+    <div class="container right">
+        <ul class="w3-ul w3-card-4">
+        {% for website in websites %}
+            <li class="w3-bar" onclick="website_details('{{website[4]}}');">
+                <span class="arrow" onclick="website_details('{{website[4]}}');"></span>
+                <div class="w3-bar-item">
+                    <span class="w3-large">{{website[0]}}</span>
+                    <h4 style="background-color:lightblue;">{{website[1]}}</h4>
+                </div>
+            </li>
+            <li style="height:300px;width:100%;display:none;" id="{{website[4]}}">
+                <h4>Nome: {{website[0]}}</h4>
+                <h4>URL: {{website[1]}}</h4>
+                <h4>Frequência de checagem: {{website[0]}}</h4>
+                <h4>Dias desde a última varredura: {{website[0]}}</h4>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+SELECT NAME, URL, UPDATE_PERIOD, CAST(JULIANDAY()-JULIANDAY(DATE_UPDATED) AS INTEGER), ID_WEBSITE
+            FROM WEBSITE
+            WHERE USER_ID_USER

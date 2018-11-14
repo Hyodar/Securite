@@ -1,0 +1,77 @@
+<html>
+
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="../static/functions.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        setTimeout(function(){document.getElementById("loading_gif").style.display="none";}, 2500);
+    </script>
+    <title>{% block title %}{% endblock %} - Securite</title>
+    </head>
+    
+    <body class="fade-in two" style="z-index:9998">
+        <img src="../static/loading.gif" style="z-index:1" id="loading_gif" class="">
+        <div class="header flex_div row">
+            <img src="../static/logo2.png" />
+            <div class="flex_div row" style="float:left;">
+                <div class="btn_bar_item" onclick="window.location.href='/logged/';">
+                    <div class="icon_img_div" style="background-image:url('../static/icons/your_websites.png');">
+                    </div>
+                    <div class="icon_text"><h4>Your Websites</h4></div>
+                </div>
+                <div class="btn_bar_item" onclick="window.location.href='/add/';">
+                    <div class="icon_img_div" style="background-image:url('../static/icons/add_website.png');">
+                    </div>
+                    <div class="icon_text"><h4>Add Website</h4></div>
+                </div>
+                <div class="btn_bar_item" onclick="show('view_reports');">
+                    <div class="icon_img_div" style="background-image:url('../static/icons/view_reports.png');">
+                    </div>
+                    <div class="icon_text"><h4>View Reports</h4></div>
+                </div>
+                <div class="btn_bar_item" onclick="show('account_details');">
+                    <div class="icon_img_div" style="background-image:url('../static/icons/account_details.png');">
+                    </div>
+                    <div class="icon_text"><h4>Account Details</h4></div>
+                </div>
+            </div>
+        </div>
+        <div class="flex_div row" style="margin-left:20px;">
+            <div class="sidebar flex_div column w3-card-4">
+                <h4>Current server state:</h4>
+                <h4>{{ server_state }}</h4>
+                <hr>
+                <h4>Most recent security check:</h4>
+                <h4>{{ recent_security_check }}</h4>
+                <hr>
+            </div>
+            <a class="btn_menu" onclick="btn_menu();"></a>
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <div id="add_website" class="fade-in one" onload="hideLoading();" onclick="hide('add_website');" style="cursor:default;">
+            <div style="background-color:#ffffff;width:400px;height:600px;">
+                <form class="flex_div column center" method="post" action="/logged/">
+                    <input type="hidden" name="type" value="add" />
+                    <label>Nome:</label>
+                    <input type="text" name="name" required/>
+                    <label>URL</label>
+                    <input type="url" name="url" required/>
+                    <label>Frequência de testes:</label>
+                    <select name="update_period">
+                        <option value="5">5 dias</option>
+                        <option value="15">15 dias</option>
+                        <option value="30">30 dias</option>
+                    </select>
+                    <button type="submit" onclick="hide('add_website');">Enviar</button>
+
+                </form>
+            </div>
+        </div>
+    
+    </body>
+
+</html>

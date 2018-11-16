@@ -16,10 +16,25 @@
 #   https://loading.io/icon/vfw3jt - globo
 #   https://loading.io/icon/ftmwrw - flecha
 
+#http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis
+
+# CONFIG SET dir /mnt/d/Users/Franco/Documents/PI_2/redis
+# CONFIG SET dbfilename redis_db.rdb
+
+
+# Passos pra rodar o sistema do celery:
+#   Console debian:
+#       cd /mnt/d/Users/Franco/Documents/PI_2
+#       sudo redis-server
+
+#   Console windows:
+#       d:
+#       cd Users\Franco\Documents\PI_2\src
+#       celery -A run_project.celery worker --loglevel=info
+#
 
 import os
-import subprocess
-import sqlite3
+import json
 
 from flask import Flask
 from flask import request
@@ -28,79 +43,73 @@ from flask import redirect
 from flask import render_template
 from flask import url_for
 
+from celery import task
+
+from flask_celery import make_celery
+
+from flask_sqlalchemy import SQLAlchemy
+
 from passlib.hash import sha256_crypt
 
-import db
 
 server = Flask(__name__)
 server.secret_key = os.urandom(24)
 
-users = sqlite3.connect(os.path.abspath('database/database.db'))
-cursor = users.cursor()
+os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1') #Pra rodar no windows
 
-# cursor.execute("""
-# BEGIN TRANSACTION;
-# """)
-# cursor.execute("ALTER TABLE WEBSITE RENAME TO TEMP_WEBSITE;")
-#
-# cursor.execute("""CREATE TABLE WEBSITE(
-#      ID_WEBSITE INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-#      NAME TEXT NOT NULL,
-#      URL TEXT NOT NULL,
-#      UPDATE_PERIOD INT NOT NULL,
-#      DATE_UPDATED TEXT,
-#      USER_ID_USER INTEGER NOT NULL,
-#      FOREIGN KEY(USER_ID_USER) REFERENCES USER(ID_USER)
-#      );
-#  """)
-# cursor.execute("""
-# INSERT INTO WEBSITE
-# SELECT
-# ID_WEBSITE, NAME, URL, UPDATE_PERIOD, DATE_UPDATED, USER_ID_USER
-# FROM
-# TEMP_WEBSITE;
-# """)
-# cursor.execute("DROP TABLE TEMP_WEBSITE;")
-#
-# cursor.execute("COMMIT;")
-# #Inicializa o w3af no shell do servidor - usar só na vm de linux
-# start_w3af = '''
-#             cd
-#             cd /w3af;
-#             ./w3af_console'''
-# try:
-#     process = subprocess.run(start_w3af, check=True) #Inicializa o console do w3af
-# except Exception as e:
-#     print("/-------------------w3af initialization error-------------------/")
-#     print(e)
+server.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+server.config['CELERY_BACKEND'] = 'db+sqlite:///database/database.db'
+server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
+server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+#server.config['CELERY_TRACK_STARTED'] = True
+server.config['CELERY_TASK_EVENTS'] = True
 
-# cursor.execute('''
-# CREATE TABLE USER(
-#     ID_USER INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-#     USERNAME TEXT NOT NULL,
-#     PASSWORD TEXT NOT NULL
-#     );
-# ''')
-# cursor.execute('''
-# CREATE TABLE WEBSITE(
-#     ID_WEBSITE INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-#     NAME TEXT NOT NULL,
-#     URL TEXT NOT NULL,
-#     UPDATE_PERIOD INT NOT NULL,
-#     DATE_UPDATED TEXT,
-#     USER_ID_USER INTEGER NOT NULL,
-#     FOREIGN KEY(USER_ID_USER) REFERENCES USER(ID_USER)
-#     );
-# ''')
+json_users = './database/users.json'
+json_websites = './database/websites.json'
 
-#cursor.execute("""
-#CREATE TABLE USERS(
-#        username TEXT NOT NULL,
-#        password TEXT NOT NULL,
-#        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
-#);
-#""")
+celery = make_celery(server)
+db = SQLAlchemy(server)
 
+#TODO: Ajustar a página da lista de sites pra nova db e os atributos
+
+class Result(db.Model):
+    id = db.Column('id_result', db.Integer, primary_key=True)
+    result_path = db.Column('result_path', db.String(100))
+
+class User(db.Model):
+    id = db.Column('id', db.Integer, primary_key=True)
+    username = db.Column('username', db.String(40))
+    password = db.Column('password', db.String(30))
+    registered_websites_path = db.Column('registered_websites_path', db.String(50))
+
+class Website(db.Model):
+    id = db.Column('id', db.Integer, primary_key=True)
+    url = db.Column('url', db.String(400))
+    updated_at = db.Column('updated_at', db.String(10))
+    report_path = db.Column('report_path', db.String(500))
+
+db.create_all()
+
+
+#huey = SqliteHuey('securite', filename='/database/database.db')
+
+
+# @huey.task(name='run_scan')
+# def run_scan():
+#     subprocess.run("")
+#     #rodar o scan do wapiti aqui
+#     #pra rodar o scan é só chamar a função res = add.apply_async((x, y)), por exemplo
+#     #depois coleta o resultado retval = add.AsyncResult(task_id).get(timeout=1.0)
+#     time.sleep(600)
+#     return None #
+
+@celery.task(name='run_scan')
+def run_scan(url):
+    from celery import current_task
+    with server.app_context():
+        print(url)
+        return "Scanned!"
+    return "aaaaa"
 
 @server.route('/')
 def index():
@@ -125,26 +134,26 @@ def logged():
         password = request.form['password']
 
         try:
-            selection = db.get_password(username)
+            user = User.query.filter_by(username=username).first()
 
-            if selection == []:
+            if user == []:
                 return render_template('loginfailed.html')
             else:
-                if sha256_crypt.verify(password, selection[0][0]):
-                    session['user'] = selection[0][1]
+                if sha256_crypt.verify(password, user.password):
+                    session['user'] = user.id
+                    print('bbbbbbbbbb')
 
-                    websites = db.get_registered_websites(session['user'])
+                    websites = get_registered_websites(session['user'])
 
                     return render_template('manage_websites.html', websites=websites)
                 else:
                     return render_template('loginfailed.html')
         except Exception as e:
             print(e)
-            users.close()
             return render_template('loginfailed.html')
 
     elif logged_user != None:
-        websites = db.get_registered_websites(logged_user)
+        websites = get_registered_websites(logged_user)
 
         return render_template('manage_websites.html', websites=websites)
 
@@ -164,29 +173,46 @@ def logout():
 
 @server.route('/add/')
 def add():
-    logged_user = session.get('user') or None
+    run_scan.delay('a') ########################
+    logged_user = session.get('user')
     if logged_user != None:
         return render_template('add_website.html')
     else:
         return redirect(url_for('login'))
 
-@server.route('/added/')
+@server.route('/added/', methods=['GET','POST'])
 def added():
-    logged_user = session.get('user') or None
-    if request.method == 'POST' and request.form.get('type') == 'add':
-        name = request.form['name']
-        url = request.form['url']
-        update_period = request.form['update_period']
+    logged_user = session.get('user')
+    print(request.method)
+    print(request.form.get('type'))
+    print(logged_user)
+    if request.method == 'POST' and request.form.get('type') == 'add' and logged_user != None:
+        if request.form['url'].count('//') == 0:
+            url = request.form['url'].split('/')[0]
+        else:
+            try:
+                url = request.form['url'].split('/')[3]
+            except:
+                url = request.form['url'].split('/')[2]
 
         try:
-            db.insert_website(name, url, update_period, session['user'])
+            print('cccccccccccc')
+            website = Website(url=url)
+            user_add_website(website, url, session['user'])
+
+            #TODO: colocar flash
+            print('dddddddddddd')
+
         except Exception as e:
+            print(e)
             return redirect(url_for('logged'))
 
+
+
     if logged_user != None:
-        return redirect(url_for('/logged/'))
+        return redirect(url_for('logged'))
     else:
-        return redirect(url_for('/login/'))
+        return redirect(url_for('login'))
 
 @server.route('/deu_boa/', methods=['GET', 'POST'])
 def deu_boa():
@@ -194,43 +220,74 @@ def deu_boa():
         username = request.form['username']
         password = request.form['password']
 
-        insert = (username, password)
-
-        users = sqlite3.connect(os.path.abspath('database/database.db'))
-        cursor = users.cursor()
-
         if len(username.replace(' ', '')) < 6 or len(password.replace(' ', '')) < 6:
             return render_template('error.html')
+        #TODO: colocar flash
 
         password = sha256_crypt.encrypt(password)
-
         try:
-            insert = (username,)
-            query = cursor.execute("""
-            SELECT * FROM USER
-            WHERE USERNAME=?""", insert)
-            selection = query.fetchall()
-            print(selection)
-            users.close()
-            if selection != []:
+            query = User.query.filter_by(username=username).all()
+            print(query)
+
+            if query != []:
                 return render_template('registerunsuccessful.html')
             else:
-                users = sqlite3.connect(os.path.abspath('database/database.db'))
-                cursor = users.cursor()
-                insert = (username, password)
-                cursor.execute("""
-                INSERT INTO USER(USERNAME, PASSWORD)
-                VALUES(?,?)""", insert)
-                users.commit()
-                users.close()
+                user = User(username=username,password=password)
+                db.session.add(user)
+                db.session.commit()
+                register_user_json(user, json_users)
 
                 return render_template('deu_boa.html')
-        except:
+        except Exception as e:
+            print(e)
             return render_template('error.html')
+    else:
+        return redirect(url_for('/login/'))
 
 @server.route('/add_website/')
 def add_website():
     return render_template('add_website.html')
+
+
+def get_registered_websites(id):
+    user = User.query.get(id)
+    json_data = open(json_users, 'r+')
+    registered_websites = json.load(json_data)
+    registered_websites = registered_websites[str(user.id)]
+    size = len(registered_websites)
+    list = [registered_websites.get(str(i)) for i in range(size)]
+
+    print(registered_websites)
+    json_data.close()
+
+    websites = Website.query.all()
+    get_websites = [[website.id, website.url, website.updated_at] for website in websites if website.url in list]
+
+    return get_websites
+
+def user_add_website(website, url, logged_user):
+    if Website.query.filter_by(url=url).all() == []:
+        db.session.add(website)
+        db.session.commit()
+        #register_user_json(website, json_websites)
+    user = User.query.get(logged_user)
+    add_website_json(user.id, website)
+
+
+def register_user_json(user, path):
+    with open(json_users, 'r') as f:
+        data = json.load(f)
+        data.update({str(user.id):{'0':'default'}})
+    with open(json_users, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def add_website_json(id, website):
+    with open(json_users, 'r') as f:
+        data = json.load(f)
+        size = len(data[str(id)])
+    with open(json_users, 'w') as f:
+        data[str(id)].update({str(size): website.url})
+        json.dump(data, f, indent=4)
 
 if __name__ == '__main__':
     server.run(debug=True, port=8080)

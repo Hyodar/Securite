@@ -1,9 +1,25 @@
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../static/style.css">
-	<title>Dash</title>
+    <script src="../static/functions.js" type="text/javascript"></script>
 </head>
 
 {% block body %}
+<ul class="warnings" style="position:fixed;top:0px;">
+    {% if not_logged == 'True' %}
+    <li id="register_error" class="alert alert-warning" role="alert">
+        Follow the input rules for the username and password.
+        <button style="float:right;" onclick="hide('register_error');">x</button>
+    </li>
+    {% endif %}
+    {% if login_error == 'True' %}
+    <li id="register_exception" class="alert alert-danger" role="alert">
+        There was an error in your register try. Please try registering again.
+        <button style="float:right;" onclick="hide('register_exception');">x</button>
+    </li>
+    {% endif %}
+</ul>
 <body class="base_page">
   <div id="login-div" class="flex_div column center">
       <img src="../static/logo2.png" class="logo">

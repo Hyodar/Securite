@@ -21,20 +21,16 @@
 # CONFIG SET dir /mnt/d/Users/Franco/Documents/PI_2/redis
 # CONFIG SET dbfilename redis_db.rdb
 
-
-# Passos pra rodar o sistema do celery:
-#   Console debian:
-#       cd /mnt/d/Users/Franco/Documents/PI_2
-#       sudo redis-server
-
-#   Console windows:
-#       d:
-#       cd Users\Franco\Documents\PI_2\src
-#       celery -A run_project.celery worker --loglevel=info
-#
+#Redis:
+#   cd pro diretorio do projeto/redis
+#   redis-server
+#RQ:
+#   cd pro diretorio do projeto/src
+#   rq worker
 
 import os
 import json
+import re
 
 from flask import Flask
 from flask import request
@@ -43,9 +39,15 @@ from flask import redirect
 from flask import render_template
 from flask import url_for
 
-from celery import task
+from rq import Queue, Connection
+#from flask.ext.rq import RQ
+#from flask.ext.rq import job
+from redis import Redis
 
-from flask_celery import make_celery
+import tasks
+
+redis_conn = Redis()
+q = Queue(connection=redis_conn)
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -55,19 +57,14 @@ from passlib.hash import sha256_crypt
 server = Flask(__name__)
 server.secret_key = os.urandom(24)
 
-os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1') #Pra rodar no windows
+#os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1') #Pra rodar no windows
 
-server.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-server.config['CELERY_BACKEND'] = 'db+sqlite:///database/database.db'
 server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-#server.config['CELERY_TRACK_STARTED'] = True
-server.config['CELERY_TASK_EVENTS'] = True
 
 json_users = './database/users.json'
 json_websites = './database/websites.json'
 
-celery = make_celery(server)
 db = SQLAlchemy(server)
 
 #TODO: Ajustar a página da lista de sites pra nova db e os atributos
@@ -103,13 +100,6 @@ db.create_all()
 #     time.sleep(600)
 #     return None #
 
-@celery.task(name='run_scan')
-def run_scan(url):
-    from celery import current_task
-    with server.app_context():
-        print(url)
-        return "Scanned!"
-    return "aaaaa"
 
 @server.route('/')
 def index():
@@ -117,14 +107,22 @@ def index():
 
 @server.route('/login/')
 def login():
-    session['user'] = None
-    return render_template('login.html')
+    not_logged = request.args.get('not_logged')
+    login_error = request.args.get('login_error')
+    login_exception = request.args.get('login_exception')
+    register_successful = request.args.get('register_successful')
+
+    return render_template('login.html',
+                           not_logged=not_logged,
+                           login_error=login_error,
+                           login_exception=login_exception,
+                           register_successful=register_successful)
 
 @server.route('/logged/', methods=['GET', 'POST'])
 def logged():
-    logged_user = session.get('user') or None
+    logged_user = session.get('user')
     websites = []
-    print("aaaaaaaaaa")
+
     print(logged_user)
 
     if request.method == 'POST' and request.form.get('type') == None and logged_user == None:
@@ -135,36 +133,52 @@ def logged():
 
         try:
             user = User.query.filter_by(username=username).first()
-
+            print(user.id)
             if user == []:
-                return render_template('loginfailed.html')
+                return redirect(url_for('login', login_error=True))
             else:
                 if sha256_crypt.verify(password, user.password):
                     session['user'] = user.id
-                    print('bbbbbbbbbb')
 
-                    websites = get_registered_websites(session['user'])
-
-                    return render_template('manage_websites.html', websites=websites)
+                    return redirect(url_for('manage'))
                 else:
-                    return render_template('loginfailed.html')
+                    return redirect(url_for('login', login_error=True))
         except Exception as e:
             print(e)
-            return render_template('loginfailed.html')
+            return redirect(url_for('login', login_error=True))
 
     elif logged_user != None:
-        websites = get_registered_websites(logged_user)
-
-        return render_template('manage_websites.html', websites=websites)
+        return redirect(url_for('manage'))
 
     elif request.method == 'GET':
         return redirect(url_for('login'))
     else:
-        return render_template('loginfailed.html')
+        return redirect(url_for('login', login_error=True))
+
+@server.route('/manage/', methods=['GET', 'POST'])
+def manage():
+    logged_user = session.get('user')
+
+    already_registered = request.args.get('already_registered')
+    add_error = request.args.get('add_error')
+    ip = request.args.get('ip')
+    if logged_user != None:
+        websites = get_registered_websites(logged_user)
+        return render_template('manage_websites.html',
+                               websites=websites,
+                               already_registered=already_registered,
+                               add_error=add_error,
+                               ip=ip)
+    return redirect(url_for('login', login_error=True))
+
 
 @server.route('/register/')
 def register():
-    return render_template('register.html')
+    register_error = request.args.get('register_error')
+    register_exception = request.args.get('register_exception')
+    return render_template('register.html',
+                           register_error=register_error,
+                           register_exception=register_exception)
 
 @server.route('/logout')
 def logout():
@@ -173,46 +187,50 @@ def logout():
 
 @server.route('/add/')
 def add():
-    run_scan.delay('a') ########################
+    #job = q.enqueue(tasks.run_scan, 'https://google.com')
     logged_user = session.get('user')
+    print(logged_user)
+
+    ip_error = request.args.get('ip_error')
     if logged_user != None:
-        return render_template('add_website.html')
+        return render_template('add_website.html', ip_error=ip_error)
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('login', not_logged=True))
 
 @server.route('/added/', methods=['GET','POST'])
 def added():
     logged_user = session.get('user')
-    print(request.method)
-    print(request.form.get('type'))
     print(logged_user)
     if request.method == 'POST' and request.form.get('type') == 'add' and logged_user != None:
-        if request.form['url'].count('//') == 0:
-            url = request.form['url'].split('/')[0]
+
+        regex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)*(?P<host>((\w+\.)?\w+\.\w+|))(\/[a-z]*)*?$'
+        url = re.match(regex, request.form.get('url'))
+
+        if url != None:
+            url = url.group('host')
         else:
-            try:
-                url = request.form['url'].split('/')[3]
-            except:
-                url = request.form['url'].split('/')[2]
+            return redirect(url_for('add', ip_error=True))
 
+        # if url.count('localhost') != 0:
+        #     return redirect(url_for('manage', ip=request.environ['REMOTE_ADDR']))
         try:
-            print('cccccccccccc')
             website = Website(url=url)
-            user_add_website(website, url, session['user'])
-
-            #TODO: colocar flash
-            print('dddddddddddd')
+            add = user_add_website(website, url, session['user'])
+            print('bbbbbbbb')
+            print(add)
+            if add == 0:
+                return redirect(url_for('manage', already_registered=True))
 
         except Exception as e:
             print(e)
-            return redirect(url_for('logged'))
-
-
+            return redirect(url_for('manage', add_error=True))
 
     if logged_user != None:
-        return redirect(url_for('logged'))
+        print('aaaaaaaaaaaaaa')
+        print('aaaaaaaaaaaaaa')
+        return redirect(url_for('manage', add_error='False'))
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('login', not_logged=True))
 
 @server.route('/deu_boa/', methods=['GET', 'POST'])
 def deu_boa():
@@ -230,19 +248,19 @@ def deu_boa():
             print(query)
 
             if query != []:
-                return render_template('registerunsuccessful.html')
+                return redirect(url_for('register', register_error=True))
             else:
                 user = User(username=username,password=password)
                 db.session.add(user)
                 db.session.commit()
                 register_user_json(user, json_users)
 
-                return render_template('deu_boa.html')
+                return redirect(url_for('login', register_successful=True))
         except Exception as e:
             print(e)
-            return render_template('error.html')
+            return redirect(url_for('register', register_exception=True))
     else:
-        return redirect(url_for('/login/'))
+        return redirect(url_for('login'))
 
 @server.route('/add_website/')
 def add_website():
@@ -271,7 +289,7 @@ def user_add_website(website, url, logged_user):
         db.session.commit()
         #register_user_json(website, json_websites)
     user = User.query.get(logged_user)
-    add_website_json(user.id, website)
+    return add_website_json(user.id, website)
 
 
 def register_user_json(user, path):
@@ -286,8 +304,13 @@ def add_website_json(id, website):
         data = json.load(f)
         size = len(data[str(id)])
     with open(json_users, 'w') as f:
-        data[str(id)].update({str(size): website.url})
+        registered_urls = [data[str(id)][str(i)] for i in range(size)]
+        if website.url not in registered_urls:
+            data[str(id)].update({str(size): website.url})
+            json.dump(data, f, indent=4)
+            return 1
         json.dump(data, f, indent=4)
+        return 0
 
 if __name__ == '__main__':
     server.run(debug=True, port=8080)

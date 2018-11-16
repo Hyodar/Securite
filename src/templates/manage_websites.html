@@ -3,6 +3,26 @@
 {% block content %}
 
     <div class="container right">
+        <ul class="warnings" style="position:fixed;top:0px;">
+        {% if add_error == 'True' %}
+            <li id="add_error" class="alert alert-warning" role="alert">
+                There was an error adding your website. Please try again.
+                <button style="float:right;" onclick="hide('add_error');">x</button>
+            </li>
+        {% endif %}
+        {% if already_registered == 'True' %}
+            <li id="already_registered" class="alert alert-warning" role="alert">
+                You have already registered that website.
+                <button style="float:right;" onclick="hide('already_registered');">x</button>
+            </li>
+        {% endif %}
+        {% if ip == 'True' %}
+            <li id="ip" class="alert alert-danger" role="alert">
+                Hey, nice try. Adding your ip {{ip}} to the list...
+                <button style="float:right;" onclick="hide('ip');">x</button>
+            </li>
+        {% endif %}
+        </ul>
         <ul class="w3-ul w3-card-4">
         {% for website in websites %}
             <li class="w3-bar" onclick="website_details('{{website[0]}}');">

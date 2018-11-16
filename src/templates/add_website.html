@@ -1,6 +1,15 @@
 {% extends "manager.html" %}
 {% block title %}Regsistered websites{% endblock %}
 {% block content %}
+<ul class="warnings" style="position:fixed;top:0px;">
+    {% if ip_error == 'True' %}
+    <li id="ip_error" class="alert alert-warning" role="alert">
+        Please insert a valid domain name.
+        <button style="float:right;" onclick="hide('ip_error');">x</button>
+    </li>
+    {% endif %}
+</ul>
+
 <div class="container right w3-card-4">
 
     <form class="flex_div column center" method="post" action="/added/">

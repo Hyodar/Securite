@@ -38,6 +38,9 @@ from flask import session
 from flask import redirect
 from flask import render_template
 from flask import url_for
+from flask import Blueprint
+
+from reports import reports
 
 from rq import Queue, Connection
 #from flask.ext.rq import RQ
@@ -56,6 +59,7 @@ from passlib.hash import sha256_crypt
 
 server = Flask(__name__)
 server.secret_key = os.urandom(24)
+server.register_blueprint(reports) #Blueprint de exibição dos reports
 
 #os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1') #Pra rodar no windows
 
@@ -279,7 +283,7 @@ def get_registered_websites(id):
     json_data.close()
 
     websites = Website.query.all()
-    get_websites = [[website.id, website.url, website.updated_at] for website in websites if website.url in list]
+    get_websites = [[website.id, website.url, website.updated_at, website.url.replace('.','')] for website in websites if website.url in list]
 
     return get_websites
 

@@ -186,21 +186,6 @@ ol ul {
 li {
   margin-bottom: 1rem; }
 
-
-/* Tables
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-/*th,
-td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #E1E1E1; }
-th:first-child,
-td:first-child {
-  padding-left: 0; }
-th:last-child,
-td:last-child {
-  padding-right: 0; }
-*/
 /* Spacing
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 button,
@@ -257,60 +242,37 @@ hr {
 /* --------------------------------------------------------------------------CUSTOM CSS--------------------------------------------------------------*/
 
 h4{
-    display: inline-block;
     height: 38px;
-    width: 100%;
-    padding: 0 30px;
-    color: #555;
-    text-align: center;
-    font-family: Helvetica;
     font-size: 13px;
     font-weight: 600;
-    line-height: 38px;
-    letter-spacing: .1rem;
-    text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    border-radius: 4px;
-    border-bottom: 1px solid #bbb;
-    box-sizing: border-box;
 }
 
 h1{
-    display: inline-block;
     height: 100px;
+    font-size: 50px;
+    font-weight: 300;
+}
+
+h1, h4, .gtitle, .legendtext{
+    font-family: Helvetica;
+    display: inline-block;
     width: 100%;
     padding: 0 30px;
     color: #555;
-    margin-top: 100px;
     text-align: center;
-    font-size: 50px;
-    font-weight: 300;
     line-height: 38px;
     letter-spacing: .2rem;
     text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
     border-radius: 4px;
-    border-bottom: 1px solid #bbb;
     box-sizing: border-box;
+
 }
 
 .gtitle, .legendtext{
-    display: inline-block;
-    padding: 0 30px;
-    color: #555;
-    text-align: center;
     font-size: 13px;
     font-weight: 600;
-    line-height: 38px;
-    letter-spacing: .1rem;
-    text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    border-radius: 4px;
-    border-bottom: 1px solid #bbb;
-    box-sizing: border-box;
 }
 
 .big{
@@ -359,31 +321,6 @@ h1{
   -webkit-animation-delay: 0.4s;
   -moz-animation-delay:0.4s;
   animation-delay: 0.4s;
-}
-
-@-webkit-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
-@-moz-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
-@keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
-
-.fade-out {
-  opacity:1;
-  -webkit-animation:fadeIn ease-in-out 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
-  -moz-animation:fadeIn ease-in-out 1;
-  animation:fadeIn ease-in-out 1;
-
-  -webkit-animation-fill-mode:forwards;  /* this makes sure that after animation is done we remain at the last keyframe value (opacity: 1)*/
-  -moz-animation-fill-mode:forwards;
-  animation-fill-mode:forwards;
-
-  -webkit-animation-duration:1s;
-  -moz-animation-duration:1s;
-  animation-duration:1s;
-}
-
-.fade-out.one {
-  -webkit-animation-delay: 0.7s;
-  -moz-animation-delay: 0.7s;
-  animation-delay: 0.7s;
 }
 
 .flex_div{
@@ -448,7 +385,7 @@ h1{
 .w3-bar-block .w3-bar-item{width:100%;display:block;padding:8px 16px;text-align:left;border:none;white-space:normal;float:none;outline:0}
 .w3-bar-block.w3-center .w3-bar-item{text-align:center}.w3-block{display:block;width:100%}
 
-.w3-ul{list-style-type:none;padding:0;margin:0}.w3-ul li{padding:8px 16px;border-bottom:1px solid #ddd}.w3-ul li:last-child{border-bottom:none}
+.w3-ul{list-style-type:none;padding:0;margin:0}.w3-ul li{padding:0px 16px;border-bottom:1px solid #ddd;margin-top:3px;margin-bottom:3px;}.w3-ul li:last-child{border-bottom:none}
 .w3-card-4,.w3-hover-shadow:hover{box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);overflow-x:hidden;}
 
 #add_website {
@@ -546,12 +483,12 @@ h1{
     z-index: 9999;
 }
 
-.arrow{
+.report-icon{
     display: block;
     margin-right: 20px;
     width: 40px;
     height: 40px;
-    background-image: url('icons/arrow.png');
+    background-image: url('icons/go_to_report.png');
     background-size:cover;
     background-position:center;
     float:right;
@@ -574,10 +511,6 @@ h1{
     border-color: #c3e6cb;
 }
 
-.alert-success hr {
-    border-top-color: #b1dfbb;
-}
-
 .alert-success .alert-link {
     color: #0b2e13;
 }
@@ -586,10 +519,6 @@ h1{
     color: #856404;
     background-color: #fff3cd;
     border-color: #ffeeba;
-}
-
-.alert-warning hr {
-    border-top-color: #ffe8a1;
 }
 
 .alert-warning .alert-link {
@@ -602,17 +531,18 @@ h1{
     border-color: #f5c6cb;
 }
 
-.alert-danger hr {
-    border-top-color: #f1b0b7;
-}
-
 .alert-danger .alert-link {
     color: #491217;
 }
 
-.alert-info{background-color:#d9edf7;border-color:#bcdff1;color:#31708f}
-.alert-info hr{border-top-color:#a6d5ec}
-.alert-info .alert-link{color:#245269}
+.alert-info{
+    background-color:#d9edf7;
+    border-color:#bcdff1;
+    color:#31708f
+}
+.alert-info .alert-link{
+    color:#245269
+}
 
 .warnings{
     position: fixed;

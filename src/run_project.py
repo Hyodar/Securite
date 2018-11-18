@@ -15,6 +15,7 @@
 #   https://loading.io/icon/ftmwrw - seta
 #   https://loading.io/icon/vfw3jt - globo
 #   https://loading.io/icon/ftmwrw - flecha
+#   https://loading.io/icon/npoqjc - icone report da lista
 
 #http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis
 
@@ -39,6 +40,7 @@ import json
 import re
 import subprocess
 import requests
+from datetime import datetime
 
 from flask import Flask
 from flask import request
@@ -47,49 +49,45 @@ from flask import redirect
 from flask import render_template
 from flask import url_for
 from flask import Blueprint
+from flask_sqlalchemy import SQLAlchemy #banco de dados
 
-from reports import reports
+from passlib.hash import sha256_crypt #hashing de senhas
 
-from rq import Queue, Connection
-from redis import Redis
-from rq_scheduler import scheduler
+from reports import reports #Blueprint pra acessar os reports como templates
 
-import tasks
+from rq import Queue, Connection #task queueing
+from redis import Redis #comunicação com rq
+from rq_scheduler import scheduler #scheduler com cron pro rq
 
-
-
+import tasks #.py de tasks pra mandar pro rq
 
 #-------------------------------------------------------------------------------------------------------------------------
+#TODO: Colocar restrições para os inputs de registro de usuário
+#TODO: Mudar os campos de registro de sites no add_website.html
+#TODO: Diminuir a altura das barras da lista de sites adicionados
+#TODO: Ajustar a página da lista de sites pra nova db e os atributos
+#TODO: Ajustar o datetime de scan pro Brasil
 #-------------------------------------------------------------------------------------------------------------------------
-
 
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
 
-from flask_sqlalchemy import SQLAlchemy
-
-from passlib.hash import sha256_crypt
-
-
 server = Flask(__name__)
 server.secret_key = os.urandom(24)
-server.register_blueprint(reports) #Blueprint de exibição dos reports
-
-#os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1') #Pra rodar no windows
+server.register_blueprint(reports) #Adiciona o blueprint de exibição dos reports no projeto
 
 server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
+#path dos json
 json_users = './database/users.json'
 json_websites = './database/websites.json'
 
 db = SQLAlchemy(server)
 
-#TODO: Ajustar a página da lista de sites pra nova db e os atributos
-
-class Result(db.Model):
-    id = db.Column('id_result', db.Integer, primary_key=True)
-    result_path = db.Column('result_path', db.String(100))
+# class Result(db.Model):
+#     id = db.Column('id_result', db.Integer, primary_key=True)
+#     result_path = db.Column('result_path', db.String(100))
 
 class User(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
@@ -104,7 +102,6 @@ class Website(db.Model):
     report_path = db.Column('report_path', db.String(500))
 
 db.create_all()
-
 
 @server.route('/')
 def index():
@@ -215,31 +212,29 @@ def added():
         else:
             return redirect(url_for('add', ip_error=True))
 
-        # if url.count('localhost') != 0:
-        #     return redirect(url_for('manage', ip=request.environ['REMOTE_ADDR']))
         try:
             website = Website(url=url)
             add = user_add_website(website, url, session['user'])
 
-            q.enqueue(tasks.run_scan, 'http://'+url, timeout=270)
-
-            scheduler.cron(
-                cron_string='0 0 0 ? * * *', #Repete o scan a cada dia
-                func=tasks.run_scan,
-                args=['http://'+url],
-                repeat=None,
-                queue_name = 'default')
-
             if add == 0:
+                # se user_add_website() retornar 0, é pq o site já foi adicionado, entao n precisa colocar pra escanear dnv
                 return redirect(url_for('manage', already_registered=True))
+
+            q.enqueue(tasks.run_scan, website, timeout=270)
+            scheduler.cron(
+                cron_string='0 0 0 ? * * *',  # Repete o scan a cada dia
+                func=tasks.run_scan,
+                args=['http://' + url],
+                repeat=None,
+                queue_name='default')
+
+            website.updated_at = datetime.now().strftime('%d-%m-%Y %H:%M')
 
         except Exception as e:
             print(e)
             return redirect(url_for('manage', add_error=True))
 
     if logged_user != None:
-        print('aaaaaaaaaaaaaa')
-        print('aaaaaaaaaaaaaa')
         return redirect(url_for('manage', add_error='False'))
     else:
         return redirect(url_for('login', not_logged=True))
@@ -252,12 +247,10 @@ def deu_boa():
 
         if len(username.replace(' ', '')) < 6 or len(password.replace(' ', '')) < 6:
             return render_template('error.html')
-        #TODO: colocar flash
 
         password = sha256_crypt.encrypt(password)
         try:
             query = User.query.filter_by(username=username).all()
-            print(query)
 
             if query != []:
                 return redirect(url_for('register', register_error=True))
@@ -278,6 +271,14 @@ def deu_boa():
 def add_website():
     return render_template('add_website.html')
 
+@server.route('/view_reports/')
+def view_reports():
+    if session.get('user') != None:
+        reports = get_reports()
+        return render_template('view_reports.html', reports=reports)
+    else:
+        redirect(url_for('login', not_logged=True))
+
 
 def get_registered_websites(id):
     user = User.query.get(id)
@@ -295,8 +296,12 @@ def get_registered_websites(id):
 
     return get_websites
 
+def get_reports():
+    websites = Website.query.all()
+    return [[website.id, website.url, website.updated_at, website.url.replace('.','')] for website in websites]
+
 def user_add_website(website, url, logged_user):
-    if Website.query.filter_by(url=url). all() == []:
+    if Website.query.filter_by(url=url).all() == []:
         db.session.add(website)
         db.session.commit()
         #register_user_json(website, json_websites)

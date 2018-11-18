@@ -1,0 +1,23 @@
+{% extends "manager.html" %}
+{% block title %}Regsistered websites{% endblock %}
+{% block content %}
+
+    <div class="container right">
+        <ul class="w3-ul w3-card-4">
+        {% for report in reports %}
+            <li class="w3-bar">
+                <a class="report-icon" href="/reports/{{report[3]}}"></a>
+                <div class="w3-bar-item" style="padding:0!important">
+                    <h4 style="background-color:lightblue;">{{report[1]}}</h4>
+                </div>
+                {% if report[2] == none %}
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Not scanned yet</h4>
+                {% else %}
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Updated at {{report[2]}}</h4>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+

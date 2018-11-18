@@ -1,5 +1,5 @@
 # Securite
-A web-based website CRON security scanner using Wapiti (http://wapiti.sourceforge.net/)
+A web-based website CRON security scanner using Wapiti (http://wapiti.sourceforge.net)
 
 Requirements:
  * redis-server

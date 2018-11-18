@@ -1,5 +1,5 @@
 {% extends "manager.html" %}
-{% block title %}Regsistered websites{% endblock %}
+{% block title %}View Reports{% endblock %}
 {% block content %}
 
     <div class="container right">
@@ -25,14 +25,16 @@
         </ul>
         <ul class="w3-ul w3-card-4">
         {% for website in websites %}
-            <li class="w3-bar" onclick="website_details('{{website[0]}}');">
-                <span class="arrow" onclick="website_details('{{website[0]}}');"></span>
+            <li class="w3-bar" onclick="window.location.href='/reports/{{website[3]}}';">
+                <a class="report-icon" href="/reports/{{website[3]}}"></a>
                 <div class="w3-bar-item" style="padding:0!important">
                     <h4 style="background-color:lightblue;">{{website[1]}}</h4>
                 </div>
-            </li>
-            <li class="report-container" id="{{website[0]}}">
-                <iframe src="/reports/{{website[3]}}" class="report"></iframe>
+                {% if website[2] == none %}
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Not scanned yet</h4>
+                {% else %}
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Updated at {{website[2]}}</h4>
+                {% endif %}
             </li>
         {% endfor %}
         </ul>

@@ -3,13 +3,13 @@ import json
 import json2html
 import time
 
-def run_scan(url):
-
+def run_scan(website):
+    url = 'http://' + website.url
     name = url.replace('.','').replace(':','').replace('/','')
 
     bash = subprocess.Popen("wapiti {} -n 10 -u -v 1 -f json -o {}.json".format(url, name),
                    shell=True,
-                   cwd='/mnt/d/Users/Franco/Documents/PI_2/src/reports') # Gera o json na pasta reports
+                   cwd='/mnt/d/Users/Franco/Documents/PI_2/src/reports') # Gera o json na pasta reports (usando no subsystem de linux)
     while True:
         poll = bash.poll()
 
@@ -26,8 +26,8 @@ def build_html(url, name):
     html_name = '/mnt/d/Users/Franco/Documents/PI_2/src/reports/'+name+'.html'
     with open('/mnt/d/Users/Franco/Documents/PI_2/src/reports/'+name+'.json', 'r') as f:
         json_info = json.load(f)
-    converter = json2html.Json2Html()
 
+    converter = json2html.Json2Html()
     tab_names = list(json_info.keys())
 
     html_content = ''
@@ -53,48 +53,6 @@ def build_html(url, name):
 
     with open(html_name, "w") as f:
         f.write(report_html)
-
-
-
-
-
-
-#
-# def format_table(json_dict):
-#
-#     header_names = list(json_dict.keys())
-#
-#     for header in header_names:
-#         data1 = json_dict[header]
-#
-#         for topic in data1:
-#
-#             if is_dict(topic):
-#
-#                 data2 = json_dict[header][topic]
-#                 for topic2 in data2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def is_dict(obj):
-    return isinstance(obj, dict)
-
-
 
 
 

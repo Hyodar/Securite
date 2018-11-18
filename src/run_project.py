@@ -16,6 +16,7 @@
 #   https://loading.io/icon/vfw3jt - globo
 #   https://loading.io/icon/ftmwrw - flecha
 #   https://loading.io/icon/npoqjc - icone report da lista
+#   https://loading.io/icon/37uyl2 - icone logout
 
 #http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html#broker-redis
 
@@ -62,11 +63,12 @@ from rq_scheduler import scheduler #scheduler com cron pro rq
 import tasks #.py de tasks pra mandar pro rq
 
 #-------------------------------------------------------------------------------------------------------------------------
-#TODO: Colocar restrições para os inputs de registro de usuário
+#TODO: Colocar restrições para os inputs de registro de usuário e para atualização de username e senha
 #TODO: Mudar os campos de registro de sites no add_website.html
 #TODO: Diminuir a altura das barras da lista de sites adicionados
 #TODO: Ajustar a página da lista de sites pra nova db e os atributos
 #TODO: Ajustar o datetime de scan pro Brasil
+#TODO: Traduzir as mensagens e conteúdos do site para português
 #-------------------------------------------------------------------------------------------------------------------------
 
 redis_conn = Redis()
@@ -85,23 +87,20 @@ json_websites = './database/websites.json'
 
 db = SQLAlchemy(server)
 
-# class Result(db.Model):
-#     id = db.Column('id_result', db.Integer, primary_key=True)
-#     result_path = db.Column('result_path', db.String(100))
-
+#Tabelas do SQL
 class User(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     username = db.Column('username', db.String(40))
     password = db.Column('password', db.String(30))
+    joined_at = db.Column('joined_at', db.String(30))
     registered_websites_path = db.Column('registered_websites_path', db.String(50))
 
 class Website(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     url = db.Column('url', db.String(400))
     updated_at = db.Column('updated_at', db.String(10))
-    report_path = db.Column('report_path', db.String(500))
 
-db.create_all()
+db.create_all() #Cria as tabelas
 
 @server.route('/')
 def index():
@@ -113,12 +112,18 @@ def login():
     login_error = request.args.get('login_error')
     login_exception = request.args.get('login_exception')
     register_successful = request.args.get('register_successful')
+    delete_success = request.args.get('delete_success')
+    delete_exception = request.args.get('delete_exception')
+    account_deleted = request.args.get('account_deleted')
 
     return render_template('login.html',
                            not_logged=not_logged,
                            login_error=login_error,
                            login_exception=login_exception,
-                           register_successful=register_successful)
+                           register_successful=register_successful,
+                           delete_success=delete_success,
+                           delete_exception=delete_exception,
+                           account_deleted=account_deleted)
 
 @server.route('/logged/', methods=['GET', 'POST'])
 def logged():
@@ -204,13 +209,13 @@ def added():
     print(logged_user)
     if request.method == 'POST' and request.form.get('type') == 'add' and logged_user != None:
 
-        regex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)*(?P<host>((\w+\.)?\w+\.\w+|))(\/[a-z]*)*?$'
-        url = re.match(regex, request.form.get('url'))
-
-        if url != None:
-            url = url.group('host')
-        else:
-            return redirect(url_for('add', ip_error=True))
+        #regex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)*(?P<host>((\w+\.)?\w+\.\w+|))(\/[a-z]*)*?$'############################################
+        #url = re.match(regex, request.form.get('url')) ################################################################
+        url = request.form.get('url') #######################################
+        #if url != None:
+        #    url = url.group('host')
+        #else:
+        #    return redirect(url_for('add', ip_error=True))
 
         try:
             website = Website(url=url)
@@ -220,7 +225,7 @@ def added():
                 # se user_add_website() retornar 0, é pq o site já foi adicionado, entao n precisa colocar pra escanear dnv
                 return redirect(url_for('manage', already_registered=True))
 
-            q.enqueue(tasks.run_scan, website, timeout=270)
+            q.enqueue(tasks.run_scan, website.url, timeout=900)
             scheduler.cron(
                 cron_string='0 0 0 ? * * *',  # Repete o scan a cada dia
                 func=tasks.run_scan,
@@ -255,10 +260,10 @@ def deu_boa():
             if query != []:
                 return redirect(url_for('register', register_error=True))
             else:
-                user = User(username=username,password=password)
+                user = User(username=username,password=password, joined_at=datetime.now().strftime('%d-%m-%Y %H:%M'))
                 db.session.add(user)
                 db.session.commit()
-                register_user_json(user, json_users)
+                register_user_json(user.id)
 
                 return redirect(url_for('login', register_successful=True))
         except Exception as e:
@@ -269,15 +274,75 @@ def deu_boa():
 
 @server.route('/add_website/')
 def add_website():
-    return render_template('add_website.html')
+    if session.get('user') != None:
+        return render_template('add_website.html')
+    return redirect(url_for('login', not_logged=True))
 
 @server.route('/view_reports/')
 def view_reports():
     if session.get('user') != None:
         reports = get_reports()
         return render_template('view_reports.html', reports=reports)
-    else:
-        redirect(url_for('login', not_logged=True))
+    return redirect(url_for('login', not_logged=True))
+
+@server.route('/account_details/')
+def account_details():
+    if session.get('user') != None:
+        user = User.query.filter_by(id=session.get('user')).first()
+
+        update_success = request.args.get('update_success')
+        update_error = request.args.get('update_error')
+        update_exception = request.args.get('update_exception')
+
+        with open(json_users, 'r') as f:
+            data = json.load(f)
+            size = len(data[str(user.id)])
+
+        return render_template('account_details.html', username=user.username,
+                               joined_at=user.joined_at,
+                               n_registered_websites=size-1,
+                               update_success=update_success,
+                               update_error=update_error,
+                               update_exception=update_exception)
+    return redirect(url_for('login', not_logged=True))
+
+@server.route('/update_account/', methods=['POST'])
+def update_account():
+    if session.get('user') != None and request.method == 'POST':
+        password = request.form.get('password')
+        username = request.form.get('username')
+
+        try:
+            user = User.query.filter_by(id=session.get('user')).first()
+            if password:
+                user.password = sha256_crypt.encrypt(password)
+                db.session.commit()
+                return redirect(url_for('account_details', update_success=True))
+            elif username:
+                user.username = username
+                db.session.commit()
+                return redirect(url_for('account_details', update_success=True))
+
+            return redirect(url_for('account_details', update_error=True))
+        except Exception as e:
+            print(e)
+            return redirect(url_for('account_details', update_exception=True))
+
+    return redirect(url_for('login', not_logged=True))
+
+@server.route('/delete_account/')
+def delete_account():
+    if session.get('user') != None:
+        try:
+            User.query.filter_by(id=session.get('user')).delete()
+            db.session.commit()
+            delete_user_json(session.get('user'))
+        except Exception as e:
+            print('Exception: ')
+            print(e)
+            return redirect(url_for('login', delete_exception=True))
+        return redirect(url_for('login', account_deleted=True))
+    return redirect(url_for('login', not_logged=True))
 
 
 def get_registered_websites(id):
@@ -292,7 +357,7 @@ def get_registered_websites(id):
     json_data.close()
 
     websites = Website.query.all()
-    get_websites = [[website.id, website.url, website.updated_at, website.url.replace('.','')] for website in websites if website.url in list]
+    get_websites = [[website.id, website.url, website.updated_at, 'http'+website.url.replace('.','').replace(':','')] for website in websites if website.url in list]
 
     return get_websites
 
@@ -305,14 +370,22 @@ def user_add_website(website, url, logged_user):
         db.session.add(website)
         db.session.commit()
         #register_user_json(website, json_websites)
+    else:
+        return 0
     user = User.query.get(logged_user)
     return add_website_json(user.id, website)
 
-
-def register_user_json(user, path):
+def delete_user_json(id):
     with open(json_users, 'r') as f:
         data = json.load(f)
-        data.update({str(user.id):{'0':'default'}})
+        data.pop(str(id))
+    with open(json_users, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def register_user_json(id):
+    with open(json_users, 'r') as f:
+        data = json.load(f)
+        data.update({str(id):{'0':'default'}})
     with open(json_users, 'w') as f:
         json.dump(data, f, indent=4)
 

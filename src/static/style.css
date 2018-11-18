@@ -576,7 +576,7 @@ h1, h4, .gtitle, .legendtext{
     overflow-y:scroll;
 }
 
-.report-tab-header{
+.tab-header{
     height: 35px;
     background-color: lightblue;
     text-align: center;
@@ -584,9 +584,10 @@ h1, h4, .gtitle, .legendtext{
     margin-left: 12%;
     margin-right: 12%;
     width: auto!important;
+    cursor: pointer;
 }
 
-.report-tab-header > h4{
+.tab-header > h4{
     margin: 0!important;
 }
 

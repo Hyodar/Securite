@@ -1,10 +1,14 @@
+
 import subprocess
 import json
 import json2html
 import time
+from datetime import datetime
 
-def run_scan(website):
-    url = 'http://' + website.url
+from run_project import db, Website
+
+def run_scan(url):
+    url = 'http://' + url
     name = url.replace('.','').replace(':','').replace('/','')
 
     bash = subprocess.Popen("wapiti {} -n 10 -u -v 1 -f json -o {}.json".format(url, name),
@@ -32,7 +36,7 @@ def build_html(url, name):
 
     html_content = ''
     for name in tab_names:
-        html_content += """<div class='w3-bar report-tab-header' onclick='website_details("{}");'><h4>{}</h4></div><div class="tab-container w3-card-4">""".format(name, name)
+        html_content += """<div class='w3-bar tab-header' onclick='website_details("{}");'><h4>{}</h4></div><div class="tab-container w3-card-4">""".format(name, name)
         html_content += converter.convert(json=json_info[name], table_attributes='id="{}" class="table"'.format(name))
         html_content += '</div>'
 
@@ -47,9 +51,14 @@ def build_html(url, name):
     <div class="flex_div row center" style="margin-bottom:30px">
     <img src="../static/logo2.png" class="logo" />
     <h2 class="alert alert-info">Report - {}</h2>
+    <button onclick="window.location.href='/manage/'">Voltar</button>
     </div>
     {}
     </html>""".format(url, html_content)
+
+    website = Website.query.filter_by(url=url).first()
+    website.updated_at = datetime.now().strftime('%d-%m-%Y %H:%M')
+    db.session.commit()
 
     with open(html_name, "w") as f:
         f.write(report_html)

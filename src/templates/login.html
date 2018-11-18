@@ -33,7 +33,18 @@
             <button style="float:right;" onclick="hide('register_successful');">x</button>
         </li>
         {% endif %}
-
+        {% if delete_exception == 'True' %}
+        <li id="delete_exception" class="alert alert-danger" role="alert">
+            Ocorreu um erro na exclusão de sua conta. Por favor, tente novamente.
+            <button style="float:right;" onclick="hide('delete_exception');">x</button>
+        </li>
+        {% endif %}
+        {% if account_deleted == 'True' %}
+        <li id="account_deleted" class="alert alert-success" role="alert">
+            Sua conta foi excluída com sucesso. Se tiver interesse em entrar novamente, se registre novamente!
+            <button style="float:right;" onclick="hide('account_deleted');">x</button>
+        </li>
+        {% endif %}
     </ul>
     <div id="login-div" class="flex_div column center">
         <img src="../static/logo2.png" class="logo"/>

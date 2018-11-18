@@ -1,15 +1,21 @@
-<html>
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="../static/style.css">
-	<title>Securite - Report not found</title>
+    <link rel="stylesheet" href="../static/style.css" />
+	<title>Securite - Report não existente</title>
+    <meta charset="utf-8" />
 </head>
 
-    <body class="base_page">
-      <div id="login-div" class="flex_div column center">
-          <img src="../static/logo2.png" class="logo" />
+{% block body %}
+<body class="base_page">
+  <div id="login-div" class="flex_div column center">
+      <img src="../static/logo2.png" class="logo" />
 
-          <h2>O relatório do site requerido <b>ainda</b> não está disponível. </h2>
-      </div>
-    </body>
-</html>
+      <h2>O report do site requerido ainda não foi efetuado</h2>
+      <h3>Se inseriu o pedido recentemente, ele será escaneado nos próximos minutos.</h3>
+
+      <a href="/manage/" style="text-decoration: none;"><button class="big button">Voltar</button></a>
+
+        <hr>
+        <br>
+  </div>
+</body>
+{% endblock %}

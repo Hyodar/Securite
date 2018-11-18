@@ -189,7 +189,7 @@ li {
 
 /* Tables
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
-th,
+/*th,
 td {
   padding: 12px 15px;
   text-align: left;
@@ -200,7 +200,7 @@ td:first-child {
 th:last-child,
 td:last-child {
   padding-right: 0; }
-
+*/
 /* Spacing
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 button,
@@ -610,6 +610,10 @@ h1{
     color: #491217;
 }
 
+.alert-info{background-color:#d9edf7;border-color:#bcdff1;color:#31708f}
+.alert-info hr{border-top-color:#a6d5ec}
+.alert-info .alert-link{color:#245269}
+
 .warnings{
     position: fixed;
     top: 0px;
@@ -641,3 +645,42 @@ h1{
     height:auto;
     overflow-y:scroll;
 }
+
+.report-tab-header{
+    height: 35px;
+    background-color: lightblue;
+    text-align: center;
+    font-weight: bold;
+    margin-left: 12%;
+    margin-right: 12%;
+    width: auto!important;
+}
+
+.report-tab-header > h4{
+    margin: 0!important;
+}
+
+.tab-container{
+    display: block;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 12%;
+    margin-right: 12%;
+    overflow-x: auto;
+    border: 1px solid #dadada;
+
+}
+
+td, th{
+    word-break:break-word;
+    min-width: 15vw;
+    padding: 8px;
+}
+
+tr{
+    display: block;
+    border-right: 1px solid #dadada;
+    border-left: 1px solid #dadada;
+    border-bottom: 1px solid #dadada;
+}
+

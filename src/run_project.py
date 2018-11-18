@@ -27,10 +27,18 @@
 #RQ:
 #   cd pro diretorio do projeto/src
 #   rq worker
+#RQ-Scheduler:
+#   cd pro diretorio do projeto/src
+#   rqscheduler
+#Flask:
+#   cd pro diretorio do projeto/src
+#   python3 run_project.py
 
 import os
 import json
 import re
+import subprocess
+import requests
 
 from flask import Flask
 from flask import request
@@ -43,11 +51,17 @@ from flask import Blueprint
 from reports import reports
 
 from rq import Queue, Connection
-#from flask.ext.rq import RQ
-#from flask.ext.rq import job
 from redis import Redis
+from rq_scheduler import scheduler
 
 import tasks
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------
+
 
 redis_conn = Redis()
 q = Queue(connection=redis_conn)
@@ -90,19 +104,6 @@ class Website(db.Model):
     report_path = db.Column('report_path', db.String(500))
 
 db.create_all()
-
-
-#huey = SqliteHuey('securite', filename='/database/database.db')
-
-
-# @huey.task(name='run_scan')
-# def run_scan():
-#     subprocess.run("")
-#     #rodar o scan do wapiti aqui
-#     #pra rodar o scan é só chamar a função res = add.apply_async((x, y)), por exemplo
-#     #depois coleta o resultado retval = add.AsyncResult(task_id).get(timeout=1.0)
-#     time.sleep(600)
-#     return None #
 
 
 @server.route('/')
@@ -191,7 +192,6 @@ def logout():
 
 @server.route('/add/')
 def add():
-    #job = q.enqueue(tasks.run_scan, 'https://google.com')
     logged_user = session.get('user')
     print(logged_user)
 
@@ -220,8 +220,16 @@ def added():
         try:
             website = Website(url=url)
             add = user_add_website(website, url, session['user'])
-            print('bbbbbbbb')
-            print(add)
+
+            q.enqueue(tasks.run_scan, 'http://'+url, timeout=270)
+
+            scheduler.cron(
+                cron_string='0 0 0 ? * * *', #Repete o scan a cada dia
+                func=tasks.run_scan,
+                args=['http://'+url],
+                repeat=None,
+                queue_name = 'default')
+
             if add == 0:
                 return redirect(url_for('manage', already_registered=True))
 
@@ -288,7 +296,7 @@ def get_registered_websites(id):
     return get_websites
 
 def user_add_website(website, url, logged_user):
-    if Website.query.filter_by(url=url).all() == []:
+    if Website.query.filter_by(url=url). all() == []:
         db.session.add(website)
         db.session.commit()
         #register_user_json(website, json_websites)

@@ -8,25 +8,25 @@
         <button style="float:right;" onclick="hide('ip_error');">x</button>
     </li>
     {% endif %}
+    {% for message in form.url.errors %}
+        <li class="alert alert-warning" role="alert">
+            {{ message }}
+        </li>
+    {% endfor %}
 </ul>
 
 <div class="container right w3-card-4">
 
-    <form class="flex_div column center" method="post" action="/added/">
+    <form class="flex_div column center" method="post" action="{{ url_for('add_website') }}">
         <h2>Registre um novo site para monitoramento</h2>
-        <input type="hidden" name="type" value="add" />
-        <label>Nome:</label>
-        <input type="text" name="name" required/>
-        <label>URL</label>
-        <input type="url" name="url" required/>
-        <label>Frequência de testes:</label>
-        <select name="update_period">
-            <option value="5">5 dias</option>
-            <option value="15">15 dias</option>
-            <option value="30">30 dias</option>
-        </select>
-        <br>
-        <button type="submit">Enviar</button>
+
+        {{ form.hidden_tag() }}
+
+        <h4 style="border:none;">{{ form.url.label }}</h4>
+        {{ form.url }}
+
+        <br/>
+        {{ form.submit }}
     </form>
 </div>
 {% endblock %}

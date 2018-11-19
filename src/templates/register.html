@@ -19,6 +19,16 @@
         <button style="float:right;" onclick="hide('register_exception');">x</button>
     </li>
     {% endif %}
+    {% for message in form.username.errors %}
+    <li class="alert alert-warning" role="alert">
+        {{ message }}
+    </li>
+    {% endfor %}
+    {% for message in form.password.errors %}
+    <li class="alert alert-warning" role="alert">
+        {{ message }}
+    </li>
+    {% endfor %}
 </ul>
 <body class="base_page">
   <div id="login-div" class="flex_div column center">
@@ -26,13 +36,14 @@
       
       <h4>Register</h4>
       
-      <form class="flex_div column center" method="post" action="{{ url_for('deu_boa') }}">
-        <h4 style="border:none;">Username: </h4>
-        <input id=uname-box type=text name=username value="{{request.form.username}}">
-        <h4 style="border:none;">Password: </h4>
-        <input id=pwd-box type=password name=password value="{{request.form.password}}">
-        <br>
-        <input id=login-button class="big button" type=submit value=Login>
+      <form class="flex_div column center" method="post" action="{{ url_for('register') }}">
+          <h4 style="border:none;">{{ form.username.label }}</h4>
+          {{ form.username }}
+          <h4 style="border:none;">{{ form.password.label }}</h4>
+          {{ form.password }}
+          <br/>
+          {{ form.submit }}
+
       </form>
         <hr>
         <br>

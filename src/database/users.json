@@ -1,7 +1,8 @@
 {
     "1": {
         "0": "default",
-        "1": "localhost:8080"
+        "1": "localhost:8080",
+        "2": "google.com"
     },
     "2": {
         "0": "default"

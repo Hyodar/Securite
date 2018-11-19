@@ -6,20 +6,20 @@
         <ul class="warnings" style="position:fixed;top:0px;">
         {% if add_error == 'True' %}
             <li id="add_error" class="alert alert-warning" role="alert">
-                There was an error adding your website. Please try again.
+                Ocorreu um erro durante a adição do site requerido. Por favor, tente adicioná-lo novamente.
                 <button style="float:right;" onclick="hide('add_error');">x</button>
             </li>
         {% endif %}
         {% if already_registered == 'True' %}
-            <li id="already_registered" class="alert alert-warning" role="alert">
-                You have already registered that website.
+            <li id="already_registered" class="alert alert-success" role="alert">
+                O site já foi registrado, mas agora está adicionado à sua lista também!
                 <button style="float:right;" onclick="hide('already_registered');">x</button>
             </li>
         {% endif %}
-        {% if ip == 'True' %}
-            <li id="ip" class="alert alert-danger" role="alert">
-                Hey, nice try. Adding your ip {{ip}} to the list...
-                <button style="float:right;" onclick="hide('ip');">x</button>
+        {% if add_success == 'True' %}
+            <li id="add_success" class="alert alert-success" role="alert">
+                O site requerido foi adicionado com sucesso!
+                <button style="float:right;" onclick="hide('add_success');">x</button>
             </li>
         {% endif %}
         </ul>

@@ -45,19 +45,31 @@
             <button style="float:right;" onclick="hide('account_deleted');">x</button>
         </li>
         {% endif %}
+        {% for message in form.username.errors %}
+        <li class="alert alert-warning" role="alert">
+            {{ message }}
+        </li>
+        {% endfor %}
+        {% for message in form.password.errors %}
+        <li class="alert alert-warning" role="alert">
+            {{ message }}
+        </li>
+        {% endfor %}
     </ul>
     <div id="login-div" class="flex_div column center">
         <img src="../static/logo2.png" class="logo"/>
         <hr/>
         <br/>
         <div class="flex_div column center">
-            <form class="flex_div column center" method="post" action="{{ url_for('logged') }}">
-                <h4 style="border:none;">Username: </h4>
-                <input id=uname-box type=text name=username value="{{request.form.username }}">
-                <h4 style="border:none;">Password: </h4>
-                <input id=pwd-box type=password name=password>
+            <form class="flex_div column center" method="post" action="{{ url_for('login') }}">
+                {{ form.hidden_tag() }}
+
+                <h4 style="border:none;">{{ form.username.label }}</h4>
+                {{ form.username }}
+                <h4 style="border:none;">{{ form.password.label }}</h4>
+                {{ form.password }}
                 <br/>
-                <input id=login-button class="big button" type=submit value=Login>
+                {{ form.submit }}
             </form>
             <hr/>
             <br/>

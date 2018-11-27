@@ -42,6 +42,7 @@ import re
 import subprocess
 import requests
 from datetime import datetime
+import pytz
 
 from flask import Flask
 from flask import request
@@ -50,6 +51,7 @@ from flask import redirect
 from flask import render_template
 from flask import url_for
 from flask import Blueprint
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy  # banco de dados
 
 from passlib.hash import sha256_crypt  # hashing de senhas
@@ -66,12 +68,7 @@ from resources.forms import register_form
 from resources.forms import website_form
 
 # -------------------------------------------------------------------------------------------------------------------------
-# TODO: Colocar restrições para os inputs de registro de usuário e para atualização de username e senha
-# TODO: Mudar os campos de registro de sites no add_website.html
-# TODO: Diminuir a altura das barras da lista de sites adicionados
-# TODO: Ajustar a página da lista de sites pra nova db e os atributos
-# TODO: Ajustar o datetime de scan pro Brasil
-# TODO: Traduzir as mensagens e conteúdos do site para português
+# TODO: Ver pq os sites com extends manager.html n tao importando a variavel server_state
 # -------------------------------------------------------------------------------------------------------------------------
 
 #Conexões redis e rq
@@ -90,9 +87,16 @@ server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # path dos json
 json_users = './database/users.json'
 json_websites = './database/websites.json'
+json_server = './database/server.json'
 
 #Criação da classe de db do SQLAlchemy
 db = SQLAlchemy(server)
+
+#Timezone do Brasil:
+local_tz = pytz.timezone('Brazil/East')
+
+#Indicador que o server ta ligado
+server_state = True
 
 
 # Tabelas do SQL -------------------------------------------------------------------------------------------------------
@@ -148,7 +152,8 @@ def login():
                 if sha256_crypt.verify(password, user.password):
                     session['user'] = user.id
 
-                    return redirect(url_for('manage'))
+                    return redirect(url_for('manage',server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
                 else:
                     return redirect(url_for('login', login_error=True))
         except Exception as e:
@@ -160,7 +165,8 @@ def login():
         return redirect(url_for('login'))
 
     elif logged_user != None:
-        return redirect(url_for('manage'))
+        return redirect(url_for('manage',server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
 
     elif request.method == 'GET':
         return render_template('login.html',
@@ -189,7 +195,9 @@ def manage():
                                websites=websites,
                                already_registered=already_registered,
                                add_error=add_error,
-                               add_success=add_success)
+                               add_success=add_success,
+                               server_state=server_state,
+                               recent_security_check=get_recent_security_check())
     return redirect(url_for('login', login_error=True))
 
 
@@ -214,7 +222,9 @@ def register():
                                         register_error=True,
                                        form=form)
             else:
-                user = User(username=username, password=password, joined_at=datetime.now().strftime('%d-%m-%Y %H:%M'))
+                date = datetime.now()
+
+                user = User(username=username, password=password, joined_at=local_dt_string(date))
                 db.session.add(user)
                 db.session.commit()
                 register_user_json(user.id)
@@ -244,7 +254,7 @@ def add_website():
     if request.method == 'POST' and logged_user != None:
 
         if not form.validate():
-            return render_template('add_website.html', form=form)
+            return render_template('add_website.html', form=form, server_state=server_state)
 
         url = request.form.get('url')
         url = re.match(
@@ -267,7 +277,10 @@ def add_website():
                 repeat=None,
                 queue_name='default')
 
-            website.updated_at = datetime.now().strftime('%d-%m-%Y %H:%M')
+            date = datetime.now()
+            website.updated_at = local_dt_string(date)
+            set_recent_security_check(local_dt_string(date))
+
 
             return redirect(url_for('manage', add_success=True))
 
@@ -276,7 +289,10 @@ def add_website():
             return redirect(url_for('manage', add_error=True))
 
     if logged_user != None:
-        return render_template('add_website.html', form=form)
+        return render_template('add_website.html',
+                               form=form,
+                               server_state=server_state,
+                               recent_security_check=get_recent_security_check())
     else:
         return redirect(url_for('login', not_logged=True))
 
@@ -285,7 +301,10 @@ def add_website():
 def view_reports():
     if session.get('user') != None:
         reports = get_reports()
-        return render_template('view_reports.html', reports=reports)
+        return render_template('view_reports.html',
+                               reports=reports,
+                               server_state=server_state,
+                               recent_security_check=get_recent_security_check())
     return redirect(url_for('login', not_logged=True))
 
 
@@ -302,12 +321,15 @@ def account_details():
             data = json.load(f)
             size = len(data[str(user.id)])
 
-        return render_template('account_details.html', username=user.username,
+        return render_template('account_details.html',
+                               username=user.username,
                                joined_at=user.joined_at,
                                n_registered_websites=size - 1,
                                update_success=update_success,
                                update_error=update_error,
-                               update_exception=update_exception)
+                               update_exception=update_exception,
+                               server_state=server_state,
+                               recent_security_check=get_recent_security_check())
     return redirect(url_for('login', not_logged=True))
 
 
@@ -318,27 +340,36 @@ def update_account():
         username = request.form.get('username')
 
         if password is None and username is None:
-            return redirect(url_for('account_details', update_error=True))
+            return redirect(url_for('account_details',
+                                    update_error=True,
+                                    server_state=server_state,
+                                    recent_security_check=get_recent_security_check()))
 
         try:
             user = User.query.filter_by(id=session.get('user')).first()
             if password:
                 if len(password)>15 or len(password)<5:
-                    return redirect(url_for('account_details', update_error=True))
+                    return redirect(url_for('account_details', update_error=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
                 user.password = sha256_crypt.encrypt(password)
                 db.session.commit()
-                return redirect(url_for('account_details', update_success=True))
+                return redirect(url_for('account_details', update_success=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
             elif username:
                 if len(username)>15 or len(username)<5:
-                    return redirect(url_for('account_details', update_error=True))
+                    return redirect(url_for('account_details', update_error=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
                 user.username = username
                 db.session.commit()
-                return redirect(url_for('account_details', update_success=True))
+                return redirect(url_for('account_details', update_success=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
 
-            return redirect(url_for('account_details', update_error=True))
+            return redirect(url_for('account_details', update_error=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
         except Exception as e:
             print(e)
-            return redirect(url_for('account_details', update_exception=True))
+            return redirect(url_for('account_details', update_exception=True,server_state=server_state,
+                               recent_security_check=get_recent_security_check()))
 
     return redirect(url_for('login', not_logged=True))
 
@@ -408,6 +439,17 @@ def register_user_json(id):
     with open(json_users, 'w') as f:
         json.dump(data, f, indent=4)
 
+def get_recent_security_check():
+    with open(json_server, 'r') as f:
+        data = json.load(f)
+    return data['recent_security_check']
+
+def set_recent_security_check(str_date):
+    with open(json_server, 'r') as f:
+        data = json.load(f)
+        data.update({'recent_security_check': str_date})
+    with open(json_server, 'w') as f:
+        json.dump(data, f, indent=4)
 
 def add_website_json(id, website):
     with open(json_users, 'r') as f:
@@ -421,6 +463,10 @@ def add_website_json(id, website):
             return 1
         json.dump(data, f, indent=4)
         return 0
+
+def local_dt_string(utc_dt):
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    return local_tz.normalize(local_dt).strftime('%d-%m-%Y %H:%M')
 
 
 if __name__ == '__main__':

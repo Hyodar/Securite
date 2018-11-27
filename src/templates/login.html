@@ -11,25 +11,25 @@
     <ul class="warnings" style="position:fixed;top:0px;">
         {% if not_logged == 'True' %}
         <li id="not_logged" class="alert alert-warning" role="alert">
-            <b>Oops.</b> You are not logged in, please log in.
+            <b>Oops.</b> Você não está logado, por favor insira seu nome de usuário e senha para entrar no sistema.
             <button style="float:right;" onclick="hide('not_logged');">x</button>
         </li>
         {% endif %}
         {% if login_error == 'True' %}
         <li id="login_error" class="alert alert-warning" role="alert">
-            Your username or password are incorrect. Please try logging in again.
+            Seu nome de usuário ou senha estão incorretos. Por favor, tente novamente.
             <button style="float:right;" onclick="hide('login_error');">x</button>
         </li>
         {% endif %}
         {% if login_exception == 'True' %}
         <li id="login_exception" class="alert alert-danger" role="alert">
-            There was an error in your login try. Please try logging in again.
+            Houve um erro durante sua tentativa de login. Por favor, tente novamente.
             <button style="float:right;" onclick="hide('login_exception');">x</button>
         </li>
         {% endif %}
         {% if register_successful == 'True' %}
         <li id="register_successful" class="alert alert-success" role="alert">
-            You have successfully registered! You can login Securite now.
+            Você está registrado e pode entrar em Securite agora!
             <button style="float:right;" onclick="hide('register_successful');">x</button>
         </li>
         {% endif %}
@@ -73,16 +73,10 @@
             </form>
             <hr/>
             <br/>
-            <h4 style="border:none;">Or enter without logging in:</h4>
-            <a href="/notlogged" style="text-decoration:none;">
-                <button class="big button">Enter</button>
-            </a>
 
             <br/>
             <br/>
-            <a href="/register" style="text-decoration:none;">
-                <button class="big button">Register</button>
-            </a>
+            <button class="big button" onclick="window.location.href='/register/'">Register</button>
         </div>
     </body>
     {% endblock %}

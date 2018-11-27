@@ -23,14 +23,6 @@ function reload(){
     location.reload();
 }
 
-function btn_menu(){
-    if(document.getElementsByClassName('sidebar')[0].style.display == 'block'){
-        document.getElementsByClassName('sidebar')[0].style.display = 'none';
-    }else{
-        document.getElementsByClassName('sidebar')[0].style.display = 'block';
-    }
-}
-
 function website_details(id){
     if(document.getElementById(id).style.display != 'none'){
         document.getElementById(id).style.display = 'none';

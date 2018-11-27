@@ -352,14 +352,14 @@ h1, h4, .gtitle, .legendtext{
 }
 
 @media (max-width: 1220px) {
-    .header, .container, #add_website, .sidebar {
+    .header, .container, #add_website, #sidebar {
         width: 100% !important;
         height: auto;
     }
     .container{
         padding-left: 20px !important;
     }
-    .sidebar{
+    #sidebar{
         display: none;
         hidden: hidden;
         width: 0px;
@@ -449,7 +449,7 @@ h1, h4, .gtitle, .legendtext{
     border-bottom: 1px solid #bbb;
 }
 
-.sidebar{
+.#sidebar{
     height:auto;
     width:17%;
     min-width:250px;

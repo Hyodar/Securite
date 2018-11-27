@@ -9,13 +9,13 @@
 <ul class="warnings" style="position:fixed;top:0px;">
     {% if not_logged == 'True' %}
     <li id="register_error" class="alert alert-warning" role="alert">
-        Follow the input rules for the username and password.
+        Siga as regras de formatação de seu usuário e senha.
         <button style="float:right;" onclick="hide('register_error');">x</button>
     </li>
     {% endif %}
     {% if login_error == 'True' %}
     <li id="register_exception" class="alert alert-danger" role="alert">
-        There was an error in your register try. Please try registering again.
+        Houve um erro durante seu registro. Por favor, tente novamente.
         <button style="float:right;" onclick="hide('register_exception');">x</button>
     </li>
     {% endif %}
@@ -34,9 +34,10 @@
   <div id="login-div" class="flex_div column center">
       <img src="../static/logo2.png" class="logo">
       
-      <h4>Register</h4>
+      <h4>Registro</h4>
       
       <form class="flex_div column center" method="post" action="{{ url_for('register') }}">
+          {{ form.csrf_token }}
           <h4 style="border:none;">{{ form.username.label }}</h4>
           {{ form.username }}
           <h4 style="border:none;">{{ form.password.label }}</h4>

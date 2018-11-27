@@ -18,8 +18,7 @@ class UrlHostRequired(object):
     def __call__(self, form, field):
         url = field.data or 0
         url = re.match('^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)*(?P<host>((\w+\.)?\w+\.\w+|))(\/[a-z]*)*?$', url)
-        print('aaaaaaaaaaa')
-        print(url)
+
         if url is None:
             raise ValidationError(self.message)
 

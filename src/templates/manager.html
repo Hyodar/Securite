@@ -16,45 +16,46 @@
         <div class="header flex_div row">
             <img src="../static/logo2.png" />
             <div class="flex_div row" style="float:left;">
-                <div class="btn_bar_item" onclick="window.location.href='/logged/';">
+                <div class="btn_bar_item" onclick="window.location.href='/manage/';">
                     <div class="icon_img_div" style="background-image:url('../static/icons/your_websites.png');">
                     </div>
-                    <div class="icon_text"><h4>Your Websites</h4></div>
+                    <div class="icon_text"><h4>Seus sites</h4></div>
                 </div>
                 <div class="btn_bar_item" onclick="window.location.href='/add_website/';">
                     <div class="icon_img_div" style="background-image:url('../static/icons/add_website.png');">
                     </div>
-                    <div class="icon_text"><h4>Add Website</h4></div>
+                    <div class="icon_text"><h4>Adicionar site</h4></div>
                 </div>
                 <div class="btn_bar_item" onclick="window.location.href='/view_reports/';">
                     <div class="icon_img_div" style="background-image:url('../static/icons/view_reports.png');">
                     </div>
-                    <div class="icon_text"><h4>View Reports</h4></div>
+                    <div class="icon_text"><h4>Ver análises</h4></div>
                 </div>
                 <div class="btn_bar_item" onclick="window.location.href='/account_details/';">
                     <div class="icon_img_div" style="background-image:url('../static/icons/account_details.png');">
                     </div>
-                    <div class="icon_text"><h4>Account Details</h4></div>
+                    <div class="icon_text"><h4>Seu perfil</h4></div>
                 </div>
                 <div class="btn_bar_item" onclick="window.location.href='/login/?log_out=True';">
                     <div class="icon_img_div" style="background-image:url('../static/icons/log_out.png');">
                     </div>
-                    <div class="icon_text"><h4>Log out</h4></div>
+                    <div class="icon_text"><h4>Sair</h4></div>
                 </div>
             </div>
         </div>
         <div class="flex_div row" style="margin-left:20px;">
-            <div class="sidebar flex_div column w3-card-4">
-                <h4>Current server state:</h4>
-                <h4>{{ server_state }}</h4>
-                <hr>
-                <h4>Most recent security check:</h4>
-                <h4>{{ recent_security_check }}</h4>
+            <div id="sidebar" class="flex_div column w3-card-4">
+
+                <h4>Situação do servidor</h4>
+                {% block server %}{% endblock %}
+
+                <hr />
+                <h4>Atualização mais recente:</h4>
+                <h4>{% block security_check %}{% endblock %}</h4>
                 <hr>
             </div>
-            <a class="btn_menu" onclick="btn_menu();"></a>
-            {% block content %}
-            {% endblock %}
+            <a class="btn_menu" onclick="website_details('sidebar');"></a>
+            {% block content %}{% endblock %}
         </div>
     
     </body>

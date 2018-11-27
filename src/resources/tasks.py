@@ -13,7 +13,7 @@ def run_scan(url):
 
     bash = subprocess.Popen("wapiti {} -n 10 -u -v 1 -f json -o {}.json".format(url, name),
                    shell=True,
-                   cwd='/mnt/d/Users/Franco/Documents/PI_2/src/reports') # Gera o json na pasta reports (usando no subsystem de linux)
+                   cwd='/mnt/d/Users/Franco/Documents/PI_2/src/resources/reports') # Gera o json na pasta reports (usando no subsystem de linux)
     while True:
         poll = bash.poll()
 
@@ -27,8 +27,8 @@ def run_scan(url):
 
 def build_html(url, name):
     #TODO: Deletar o json depois de gerar o html
-    html_name = '/mnt/d/Users/Franco/Documents/PI_2/src/reports/'+name+'.html'
-    with open('/mnt/d/Users/Franco/Documents/PI_2/src/reports/'+name+'.json', 'r') as f:
+    html_name = '/mnt/d/Users/Franco/Documents/PI_2/src/resources/reports/'+name+'.html'
+    with open('/mnt/d/Users/Franco/Documents/PI_2/src/resources/reports/'+name+'.json', 'r') as f:
         json_info = json.load(f)
 
     converter = json2html.Json2Html()
@@ -40,7 +40,7 @@ def build_html(url, name):
         html_content += converter.convert(json=json_info[name], table_attributes='id="{}" class="table"'.format(name))
         html_content += '</div>'
 
-    report_html = """"
+    report_html = """
     <html>
     <head>
     <link rel="stylesheet" href="../static/style.css" />

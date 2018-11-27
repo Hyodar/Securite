@@ -1,10 +1,19 @@
 {% extends "manager.html" %}
 {% block title %}Add website{% endblock %}
+
+{% block server %}
+    {% if server_state %}
+    <h4 style="color:#009c00;">Disponível</h4>
+    {% endif %}
+{% endblock %}
+
+{% block security_check %}{{recent_security_check}}{% endblock %}
+
 {% block content %}
 <ul class="warnings" style="position:fixed;top:0px;">
     {% if ip_error == 'True' %}
     <li id="ip_error" class="alert alert-warning" role="alert">
-        Please insert a valid domain name.
+        Insira um nome de domínio válido para análise.
         <button style="float:right;" onclick="hide('ip_error');">x</button>
     </li>
     {% endif %}

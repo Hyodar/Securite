@@ -1,5 +1,14 @@
 {% extends "manager.html" %}
 {% block title %}Account details{% endblock %}
+
+{% block server %}
+    {% if server_state %}
+    <h4 style="color:#009c00;">Disponível</h4>
+    {% endif %}
+{% endblock %}
+
+{% block security_check %}{{recent_security_check}}{% endblock %}
+
 {% block content %}
 
         <div class="container right w3-card-4" style="height:80%;">

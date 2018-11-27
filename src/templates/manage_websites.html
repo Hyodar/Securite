@@ -1,5 +1,14 @@
 {% extends "manager.html" %}
 {% block title %}Manage websites{% endblock %}
+
+{% block server %}
+    {% if server_state %}
+    <h4 style="color:#009c00;">Disponível</h4>
+    {% endif %}
+{% endblock %}
+
+{% block security_check %}{{recent_security_check}}{% endblock %}
+
 {% block content %}
 
     <div class="container right">
@@ -31,9 +40,9 @@
                     <h4 style="background-color:lightblue;">{{website[1]}}</h4>
                 </div>
                 {% if website[2] == none %}
-                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Not scanned yet</h4>
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Ainda não foi escaneado</h4>
                 {% else %}
-                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Updated at {{website[2]}}</h4>
+                <h4 class="alert alert-info" style='font-size:12px;font-family:"Raleway";width:250px;padding:0rem 1.25rem;'>Atualizado em {{website[2]}}</h4>
                 {% endif %}
             </li>
         {% endfor %}

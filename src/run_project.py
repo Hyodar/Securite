@@ -35,6 +35,10 @@
 # Flask:
 #   cd pro diretorio do projeto/src
 #   python3 run_project.py
+# Adicionar environment variable no subsystem de linux:
+#   cmd: C:\Windows\System32\bash.exe ~ --login
+#   sudo vi .bashrc ou .profile
+
 
 import os
 import json
@@ -53,6 +57,8 @@ from flask import url_for
 from flask import Blueprint
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy  # banco de dados
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 from passlib.hash import sha256_crypt  # hashing de senhas
 
@@ -84,20 +90,8 @@ server.register_blueprint(reports)  # Adiciona o blueprint de exibição dos rep
 server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
-# path dos json
-json_users = './database/users.json'
-json_websites = './database/websites.json'
-json_server = './database/server.json'
-
 #Criação da classe de db do SQLAlchemy
 db = SQLAlchemy(server)
-
-#Timezone do Brasil:
-local_tz = pytz.timezone('Brazil/East')
-
-#Indicador que o server ta ligado
-server_state = True
-
 
 # Tabelas do SQL -------------------------------------------------------------------------------------------------------
 class User(db.Model):
@@ -105,7 +99,6 @@ class User(db.Model):
     username = db.Column('username', db.String(40))
     password = db.Column('password', db.String(30))
     joined_at = db.Column('joined_at', db.String(30))
-    registered_websites_path = db.Column('registered_websites_path', db.String(50))
 
 
 class Website(db.Model):
@@ -115,6 +108,32 @@ class Website(db.Model):
 
 # Cria as tabelas
 db.create_all()
+#-----------------------------------------------------------------------------------------------------------------------
+
+#Criação do app de admin
+server.config['FLASK_ADMIN_SWATCH'] = 'readable'
+admin = Admin(server)
+
+class MyModelView(ModelView):
+    page_size = 50
+
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Website, db.session))
+
+# path dos json
+json_users = './database/users.json'
+json_websites = './database/websites.json'
+json_server = './database/server.json'
+
+#Configuração do Recaptcha
+server.config['RECAPTCHA_PUBLIC_KEY'] = '6Leiwn4UAAAAAPnBc65KlDZnnXJ719Pp_fgdqIRp'
+server.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('recaptcha_securite') # environment variable para segurança
+
+#Timezone do Brasil:
+local_tz = pytz.timezone('Brazil/East')
+
+#Indicador que o server ta ligado
+server_state = True
 
 @server.route('/')
 def index():
@@ -381,6 +400,7 @@ def delete_account():
             User.query.filter_by(id=session.get('user')).delete()
             db.session.commit()
             delete_user_json(session.get('user'))
+            session['user'] = None
         except Exception as e:
             print('Exception: ')
             print(e)

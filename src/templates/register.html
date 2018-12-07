@@ -29,6 +29,11 @@
         {{ message }}
     </li>
     {% endfor %}
+    {% for message in form.recaptcha.errors %}
+    <li class="alert alert-warning" role="alert">
+        {{ message }}
+    </li>
+    {% endfor %}
 </ul>
 <body class="base_page">
   <div id="login-div" class="flex_div column center">
@@ -43,6 +48,9 @@
           <h4 style="border:none;">{{ form.password.label }}</h4>
           {{ form.password }}
           <br/>
+          {{ form.recaptcha }}
+          <br/>
+
           {{ form.submit }}
 
       </form>

@@ -6,6 +6,7 @@ from wtforms.validators import InputRequired
 from wtforms.validators import Length
 
 from flask_wtf import FlaskForm
+from flask_wtf import RecaptchaField
 
 
 class RegisterForm(FlaskForm):
@@ -22,5 +23,7 @@ class RegisterForm(FlaskForm):
             InputRequired('Insira uma senha'),
             Length(min=5, max=15,
                    message='Sua senha deve ter entre 5 e 15 caracteres')])
+
+    recaptcha = RecaptchaField()
 
     submit = SubmitField('Registrar')

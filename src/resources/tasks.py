@@ -26,7 +26,6 @@ def run_scan(url):
     return '{} scan html report generated successfully'.format(name)
 
 def build_html(url, name):
-    #TODO: Deletar o json depois de gerar o html
     html_name = '/mnt/d/Users/Franco/Documents/PI_2/src/resources/reports/'+name+'.html'
     with open('/mnt/d/Users/Franco/Documents/PI_2/src/resources/reports/'+name+'.json', 'r') as f:
         json_info = json.load(f)

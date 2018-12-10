@@ -73,9 +73,6 @@ from resources.forms import login_form
 from resources.forms import register_form
 from resources.forms import website_form
 
-# -------------------------------------------------------------------------------------------------------------------------
-# TODO: Ver pq os sites com extends manager.html n tao importando a variavel server_state
-# -------------------------------------------------------------------------------------------------------------------------
 
 #Conexões redis e rq
 redis_conn = Redis()
@@ -122,7 +119,6 @@ admin.add_view(MyModelView(Website, db.session))
 
 # path dos json
 json_users = './database/users.json'
-json_websites = './database/websites.json'
 json_server = './database/server.json'
 
 #Configuração do Recaptcha

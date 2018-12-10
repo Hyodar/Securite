@@ -12,7 +12,7 @@ from flask_wtf import FlaskForm
 class UrlHostRequired(object):
     def __init__(self, message=None):
         if not message:
-            message = 'The url must contain a valid host'
+            message = 'A URL deve conter um host válido.'
         self.message = message
 
     def __call__(self, form, field):
